@@ -9,22 +9,27 @@ other_coins = [coin for coin in coins if not coin.endswith('USDT')]
 
 # Function to fetch the balances of the coins
 def print_balances(coin_list):
+    account_types = ["CONTRACT", "UNIFIED", "FUND"]
     portfolio = {}
-    for coin in coin_list:
-        try:
-            balance_info = session.get_coins_balance(
-                accountType="FUND",
-                coin=coin
-            )
-            # Check if the balance list is not empty and the walletBalance is greater than 0
-            if balance_info['result']['balance'] and float(balance_info['result']['balance'][0]['walletBalance']) > 0:
-                portfolio[coin] = float(balance_info['result']['balance'][0]['walletBalance'])  # Add the balance to the portfolio
-                # print(f"Balance for {coin}: {balance_info['result']['balance'][0]['walletBalance']}")
-        except Exception as e:
-            if 'coin ' + coin + ' invalid' in str(e):
-                continue  # Skip this coin and continue with the next one
-            else:
-                print(f"Failed to get balance for {coin}: {e}")
+    for account_type in account_types:
+        for coin in coin_list:
+            try:
+                balance_info = session.get_coins_balance(
+                    accountType=account_type,
+                    coin=coin
+                )
+                # Check if the balance list is not empty and the walletBalance is greater than 0
+                if balance_info['result']['balance'] and float(balance_info['result']['balance'][0]['walletBalance']) > 0:
+                    # If the coin is already in the portfolio, add the new balance to the existing balance
+                    if coin in portfolio:
+                        portfolio[coin] += float(balance_info['result']['balance'][0]['walletBalance'])
+                    else:
+                        portfolio[coin] = float(balance_info['result']['balance'][0]['walletBalance'])
+            except Exception as e:
+                if 'coin ' + coin + ' invalid' in str(e):
+                    continue  # Skip this coin and continue with the next one
+                else:
+                    print(f"Failed to get balance for {coin} in {account_type} account: {e}")
     return portfolio
 
 # Function to update the values of the coins in the portfolio
@@ -45,26 +50,23 @@ def update_portfolio_values():
 
     return portfolio_values
 
+portfolio_values = update_portfolio_values() # Assuming portfolio_values is your dictionary
+list_of_coins = list(portfolio_values.keys()) # Get the list of coins
+
 
 # Test protocol
-# print("List of coins:") # Print the list of coins
+# Test get_top_coins function
+# print("Testing get_top_coins function...")
+# coins = get_top_coins()
 # print(coins)
 
-# print("\nMy coins:") # Print the list of your coins
-# print(my_coins)
-
-# print("\nOther coins:")  #Print the list of other coins
-# print(other_coins)
-
-# print("\nFetching price for BTCUSDT:") # Test the fetch_bybit_ticker function
-# print(fetch_bybit_ticker("BTCUSDT")) 
-
-# print("\nFetching balances for my coins:") # Test the print_balances function
+# Test print_balances function
+# print("Testing print_balances function...")
 # balances = print_balances(my_coins)
-# for coin, balance in balances.items():
-#     print(f"{coin}: {balance}")
+# print(balances)
+#print(list_of_coins)
 
-# print("\nUpdating portfolio values:") # Test the update_portfolio_values function
+# Test update_portfolio_values function
+# print("Testing update_portfolio_values function...")
 # portfolio_values = update_portfolio_values()
-# for coin, data in portfolio_values.items():
-#     print(f"{coin}: {data}")
+# print(portfolio_values)
