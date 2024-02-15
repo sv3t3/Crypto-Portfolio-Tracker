@@ -1,9 +1,10 @@
-from portfolio_manager import update_portfolio_values, list_of_coins, portfolio_values
+# Version: 13.2
 import requests
 import os
 import time
 from datetime import datetime, timedelta
-from api.bybit import get_bybit_historical_data
+from api.bybit import get_bybit_historical_data, update_portfolio_values, portfolio_values
+
 
 # ------------------------------
 # Constants
@@ -12,6 +13,17 @@ project_folder = os.path.dirname(os.path.abspath(__file__))
 database_folder = os.path.join(project_folder, '..', 'database')
 filename = os.path.join(database_folder, 'portfolio_value.txt')
 initial_investment_filename = os.path.join(database_folder, 'initial_investment.txt')
+# Define the path to the list_of_coins.txt file
+list_of_coins_filename = os.path.join(database_folder, 'list_of_coins.txt')
+
+# Function to read the list of coins from a file
+def get_list_of_coins():
+    with open(list_of_coins_filename, 'r') as f:
+        coins = [line.strip() for line in f]
+    return coins
+
+# Use the function to get the list of coins
+list_of_coins = get_list_of_coins()
 
 # ------------------------------
 # Conversion Functions
